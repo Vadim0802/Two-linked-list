@@ -3,7 +3,7 @@ using namespace std;
 
 struct Node
 {
-	int count;
+	int key;
 	int field;
 	Node* ptr;
 	Node* prev;
@@ -14,7 +14,34 @@ class List
 private:
 	Node* head;
 	Node* tail;
+
+	void IndexList()
+	{
+		Node* Index = head;
+		int i = 1;
+		while (Index->ptr != nullptr)
+		{
+			Index->key = i++;
+			Index = Index->ptr;
+		}
+	}
+
+	void Clear()
+	{
+		Node* Clear = head;
+		if (Clear == nullptr) return;
+
+		while (Clear != nullptr)
+		{
+			Node* Next = Clear;
+			Clear = Clear->ptr;
+			delete Next;
+		}
+		head = nullptr;
+		tail = nullptr;
+	}
 public:
+	int count = 0;
 	List()
 	{
 		head = nullptr;
@@ -24,7 +51,8 @@ public:
 	{
 		Clear();
 	}
-	void Add_Element(int x)
+
+	void Add_Begin(int x)
 	{
 		Node* elem = new Node;
 		elem->field = x;
@@ -35,38 +63,111 @@ public:
 			elem->prev = nullptr;
 			head = elem;
 			tail = elem;
+			this->count++;
+			IndexList();
 			return;
 		}
-
-		Node* pass = head;
-		if (pass->field >= elem->field)
+		else
 		{
+			Node* pass = head;
 			elem->prev = nullptr;
 			elem->ptr = pass;
 			pass->prev = elem;
 			head = elem;
+			this->count++;
+			IndexList();
 			return;
 		}
+	}
 
-		Node* pass1 = pass->ptr;
+	void Add_End(int x)
+	{
+		Node* elem = new Node;
+		elem->field = x;
 
-		while (pass1)
+		if (head == nullptr)
 		{
-			if (pass->field < elem->field && elem->field <= pass1->field)
-			{
-				pass->ptr = elem;
-				elem->prev = pass;
-				elem->ptr = pass1;
-				pass1->prev = elem;
-				return;
-			}
-			pass = pass1;
-			pass1 = pass1->ptr;
+			elem->ptr = nullptr;
+			elem->prev = nullptr;
+			head = elem;
+			tail = elem;
+			this->count++;
+			IndexList();
+			return;
 		}
-		tail = elem;
-		pass->ptr = elem;
-		elem->ptr = nullptr;
-		elem->prev = pass;
+		else
+		{
+			Node* end = tail;
+			tail = elem;
+			end->ptr = elem;
+			elem->ptr = nullptr;
+			elem->prev = end;
+			this->count++;
+			IndexList();
+			return;
+		}
+	}
+
+	void Add(int x, int index)
+	{
+		Node* elem = new Node;
+		elem->field = x;
+		if (index == 1)
+		{
+			Add_Begin(x);
+		}
+		else if (index == this->count)
+		{
+			Add_End(x);
+		}
+		else
+		{
+			if ((this->count / 2) <= index)
+			{
+				Node* Parent = tail;
+				Node* Next = Parent->prev;
+				while (Next != nullptr)
+				{
+					if (Next->key == index)
+					{
+						Parent = Next;
+						Next = Next->prev;
+						elem->prev = Next;
+						Next->ptr = elem;
+						elem->ptr = Parent;
+						Parent->prev = elem;
+						this->count++;
+						return;
+					}
+					Parent = Next;
+					Next = Next->prev;
+					Next->ptr = Parent;
+				}
+			}
+			else
+			{
+				Node* Parent = head;
+				Node* Next = Parent->ptr;
+				while (Next != nullptr)
+				{
+					if (Next->key == index)
+					{
+						Parent = Next;
+						Next = Next->ptr;
+						Parent->ptr = elem;
+						elem->prev = Parent;
+						elem->ptr = Next;
+						Next->prev = elem;
+						this->count++;
+						return;
+					}
+					Parent = Next;
+					Next = Next->ptr;
+					Next->prev = Parent;
+				}
+			}
+		}
+		IndexList();
 	}
 
 	void Print()
@@ -105,41 +206,97 @@ public:
 		}
 	}
 
-	void DeleteElem(int x)
+	void DeleteBegin()
 	{
-		Node* begin = head;
-		Node* end = tail;
-
-		if (begin->field == x)
+		if (head != nullptr)
 		{
+			Node* begin = head;
 			head = begin->ptr;
 			head->prev = nullptr;
 			delete begin;
+			this->count--;
+			IndexList();
 			return;
 		}
-		if (end->field == x)
+		else
 		{
+			cout << "This list is empty!\n";
+		}
+
+	}
+
+	void DeleteEnd()
+	{
+		if (head != nullptr && tail != nullptr)
+		{
+			Node* end = tail;
 			tail = end->prev;
 			tail->ptr = nullptr;
 			delete end;
+			this->count--;
+			IndexList();
 			return;
 		}
-
-		Node* search = begin->ptr;
-		while (search)
+		else
 		{
-			if (search->field == x)
-			{
-				begin->ptr = search->ptr;
-				(search->ptr)->prev = begin;
-				delete search;
-				return;
-			}
-			begin = search;
-			search = search->ptr;
-			search->prev = begin;
+			cout << "This list is empty!\n";
 		}
+	}
 
+	void Delete(int index)
+	{
+		IndexList();
+		if (index == 1)
+		{
+			DeleteBegin();
+		}
+		else if (index == this->count)
+		{
+			DeleteEnd();
+		}
+		else
+		{
+			if (index <= (this->count / 2))
+			{
+				Node* Parent = tail;
+				Node* Next = Parent->prev;
+				while (Next != nullptr)
+				{
+					if (Next->key == index)
+					{
+						(Next->prev)->ptr = Parent;
+						Parent->prev = Next->prev;
+						delete Next;
+						this->count--;
+						IndexList();
+						return;
+					}
+					Parent = Next;
+					Next = Next->prev;
+					Next->ptr = Parent;
+				}
+			}
+			else
+			{
+				Node* Parent = head;
+				Node* Next = Parent->ptr;
+				while (Next != nullptr)
+				{
+					if (Next->key == index)
+					{
+						Parent->ptr = Next->ptr;
+						(Next->ptr)->prev = Parent;
+						delete Next;
+						this->count--;
+						IndexList();
+						return;
+					}
+					Parent = Next;
+					Next = Next->ptr;
+					Next->prev = Parent;
+				}
+			}
+		}
 	}
 
 	void Find(int x)
@@ -158,60 +315,6 @@ public:
 		cout << "Element [" << x << "] is not in the list\n";
 	}
 
-	void Clear()
-	{
-		Node* Clear = head;
-		if (Clear == nullptr) return;
-
-		while (Clear != nullptr)
-		{
-			Node* Next = Clear;
-			Clear = Clear->ptr;
-			delete Next;
-		}
-		head = nullptr;
-		tail = nullptr;
-	}
-
-	void IndexList()
-	{
-		if (head != nullptr)
-		{
-			Node* Index = head;
-			int i = 1;
-			while (Index != nullptr)
-			{
-				Index->count = i++;
-				Index = Index->ptr;
-			}
-		}
-	}
-
-	void FindByIndex(int x)
-	{
-		IndexList();
-		if (head != nullptr)
-		{
-			Node* Find = head;
-			while (Find != nullptr)
-			{
-				if (Find->count == x)
-				{
-					cout << "The value of this element - [" << Find->field << "]" << endl;
-					return;
-				}
-				Find = Find->ptr;
-			}
-			if (Find == nullptr)
-			{
-				cout << "Not Find!" << endl;
-			}
-		}
-		else
-		{
-			cout << "This list is empty!" << endl;
-		}
-	}
 };
 
 int main()
@@ -219,50 +322,18 @@ int main()
 	setlocale(LC_ALL, "RU");
 
 	List list;
-	cout << "1 - Add\n2 - Delete\n3 - Print\n4 - Print Back\n5 - Find\n6 - Clear\n7 - FindByIndex\n";
-	while (1)
-	{
-		cout << "Enter choice: ";
-		int choice;
-		cin >> choice;
-		switch (choice)
-		{
-		case 1:
-			int num;
-			cout << "Num elem:"; cin >> num;
-			for (int i = 0; i < num; i++)
-			{
-				int x;
-				cout << i + 1 << " - "; cin >> x;
-				list.Add_Element(x);
-			}
-			break;
-		case 2:
-			int Delete;
-			cout << "Field delete elem - "; cin >> Delete;
-			list.DeleteElem(Delete);
-			break;
-		case 3:
-			list.Print();
-			break;
-		case 4:
-			cout << endl;
-			list.PrintBack();
-			break;
-		case 5:
-			int FindElem;
-			cout << "Field find elem - "; cin >> FindElem;
-			list.Find(FindElem);
-			break;
-		case 6:
-			list.Clear();
-			break;
-		case 7:
-			int FindIndex;
-			cout << "What is the element to find - "; cin >> FindIndex;
-			list.FindByIndex(FindIndex);
-		default:
-			break;
-		}
-	}
+
+	list.Add_Begin(3);
+	list.Add_Begin(5);
+	list.Add_End(10);
+	list.Add_End(15);
+
+	list.Add(6, 3);
+	list.Add(11, 1);
+	list.Add(17, 3);
+	list.Print();
+	list.DeleteBegin();
+	list.Print();
+	list.Delete(4);
+	list.Print();
 }
