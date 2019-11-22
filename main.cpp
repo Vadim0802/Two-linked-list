@@ -14,6 +14,7 @@ class List
 private:
 	Node* head;
 	Node* tail;
+	int count;
 
 	void IndexList()
 	{
@@ -24,6 +25,7 @@ private:
 			Index->key = i++;
 			Index = Index->ptr;
 		}
+		count++;
 	}
 
 	void Clear()
@@ -41,59 +43,50 @@ private:
 		tail = nullptr;
 	}
 public:
-	int count = 0;
 	List()
 	{
 		head = nullptr;
 		tail = nullptr;
+		count = 0;
 	}
 	~List()
 	{
 		Clear();
 	}
 
+
 	void Add_Begin(int x)
 	{
 		Node* elem = new Node;
 		elem->field = x;
-
 		if (head == nullptr)
 		{
 			elem->ptr = nullptr;
 			elem->prev = nullptr;
 			head = elem;
 			tail = elem;
-			this->count++;
-			IndexList();
-			return;
 		}
 		else
 		{
-			Node* pass = head;
+			Node* oldHead = head;
 			elem->prev = nullptr;
-			elem->ptr = pass;
-			pass->prev = elem;
+			elem->ptr = oldHead;
+			oldHead->prev = elem;
 			head = elem;
-			this->count++;
-			IndexList();
-			return;
 		}
+		IndexList();
 	}
 
 	void Add_End(int x)
 	{
 		Node* elem = new Node;
 		elem->field = x;
-
 		if (head == nullptr)
 		{
 			elem->ptr = nullptr;
 			elem->prev = nullptr;
 			head = elem;
 			tail = elem;
-			this->count++;
-			IndexList();
-			return;
 		}
 		else
 		{
@@ -102,72 +95,114 @@ public:
 			end->ptr = elem;
 			elem->ptr = nullptr;
 			elem->prev = end;
-			this->count++;
-			IndexList();
-			return;
+		}
+		IndexList();
+	}
+
+	void Print_By_Index(int index)
+	{
+		if (index <= count / 2)
+		{
+			Node* begin = head;
+			int counter = 1;
+			while (begin != nullptr)
+			{
+				if (counter == index)
+				{
+					cout << "[" << counter << "] " << "-->" << " [" << begin->field << "]\n";
+					return;
+				}
+				begin = begin->ptr;
+				counter++;
+			}
+		}
+		else if (index > count / 2)
+		{
+			Node* end = tail;
+			int counter = count;
+			while (tail != nullptr)
+			{
+				if (counter == index)
+				{
+					cout << "[" << counter << "] " << "-->" << " [" << end->field << "]\n";
+					return;
+				}
+				end = end->prev;
+				counter--;
+			}
 		}
 	}
 
-	void Add(int x, int index)
+	void Delete_By_Index(int index)
 	{
-		Node* elem = new Node;
-		elem->field = x;
-		if (index == 1)
+		if (index <= count / 2)
 		{
-			Add_Begin(x);
-		}
-		else if (index == this->count)
-		{
-			Add_End(x);
-		}
-		else
-		{
-			if ((this->count / 2) <= index)
+			Node* Parent = head;
+			Node* Next = Parent->ptr;
+			if (index == 1)
 			{
-				Node* Parent = tail;
-				Node* Next = Parent->prev;
-				while (Next != nullptr)
+				if (Parent->ptr == nullptr)
 				{
-					if (Next->key == index)
-					{
-						Parent = Next;
-						Next = Next->prev;
-						elem->prev = Next;
-						Next->ptr = elem;
-						elem->ptr = Parent;
-						Parent->prev = elem;
-						this->count++;
-						return;
-					}
-					Parent = Next;
-					Next = Next->prev;
-					Next->ptr = Parent;
+					delete Parent;
+					head = nullptr;
+					tail = nullptr;
+					count--;
+					return;
 				}
+				head = Parent->ptr;
+				head->prev = nullptr;
+				delete Parent;
+				count--;
+				return;
 			}
-			else
+			while (Next != nullptr)
 			{
-				Node* Parent = head;
-				Node* Next = Parent->ptr;
-				while (Next != nullptr)
+				if (Next->key == index)
 				{
-					if (Next->key == index)
-					{
-						Parent = Next;
-						Next = Next->ptr;
-						Parent->ptr = elem;
-						elem->prev = Parent;
-						elem->ptr = Next;
-						Next->prev = elem;
-						this->count++;
-						return;
-					}
-					Parent = Next;
 					Next = Next->ptr;
-					Next->prev = Parent;
+					(Next->ptr)->prev = Parent;
+					delete Next;
+					count--;
+					return;
 				}
+				Parent = Next;
+				Next = Next->ptr;
 			}
 		}
-		IndexList();
+		else if (index > count / 2)
+		{
+			Node* Parent = tail;
+			Node* Next = Parent->prev;
+			if (index == count)
+			{
+				if (Parent->prev == nullptr)
+				{
+					delete Parent;
+					head = nullptr;
+					tail = nullptr;
+					count--;
+					return;
+				}
+				tail = Parent->prev;
+				tail->ptr = nullptr;
+				delete Parent;
+				count--;
+				return;
+			}
+			while (Next != nullptr)
+			{
+				if (Next->key == index)
+				{
+					(Next->prev)->ptr = Parent;
+					Parent->prev = Next->prev;
+					delete Next;
+					count--;
+					return;
+				}
+				Parent = Next;
+				Next = Next->prev;
+			}
+		}
 	}
 
 	void Print()
@@ -205,116 +240,6 @@ public:
 			cout << "This list is empty!" << endl;
 		}
 	}
-
-	void DeleteBegin()
-	{
-		if (head != nullptr)
-		{
-			Node* begin = head;
-			head = begin->ptr;
-			head->prev = nullptr;
-			delete begin;
-			this->count--;
-			IndexList();
-			return;
-		}
-		else
-		{
-			cout << "This list is empty!\n";
-		}
-
-	}
-
-	void DeleteEnd()
-	{
-		if (head != nullptr && tail != nullptr)
-		{
-			Node* end = tail;
-			tail = end->prev;
-			tail->ptr = nullptr;
-			delete end;
-			this->count--;
-			IndexList();
-			return;
-		}
-		else
-		{
-			cout << "This list is empty!\n";
-		}
-	}
-
-	void Delete(int index)
-	{
-		IndexList();
-		if (index == 1)
-		{
-			DeleteBegin();
-		}
-		else if (index == this->count)
-		{
-			DeleteEnd();
-		}
-		else
-		{
-			if (index <= (this->count / 2))
-			{
-				Node* Parent = tail;
-				Node* Next = Parent->prev;
-				while (Next != nullptr)
-				{
-					if (Next->key == index)
-					{
-						(Next->prev)->ptr = Parent;
-						Parent->prev = Next->prev;
-						delete Next;
-						this->count--;
-						IndexList();
-						return;
-					}
-					Parent = Next;
-					Next = Next->prev;
-					Next->ptr = Parent;
-				}
-			}
-			else
-			{
-				Node* Parent = head;
-				Node* Next = Parent->ptr;
-				while (Next != nullptr)
-				{
-					if (Next->key == index)
-					{
-						Parent->ptr = Next->ptr;
-						(Next->ptr)->prev = Parent;
-						delete Next;
-						this->count--;
-						IndexList();
-						return;
-					}
-					Parent = Next;
-					Next = Next->ptr;
-					Next->prev = Parent;
-				}
-			}
-		}
-	}
-
-	void Find(int x)
-	{
-		Node* search_elem = head;
-
-		while (search_elem != nullptr)
-		{
-			if (search_elem->field == x)
-			{
-				cout << "Element [" << x << "] in the list is\n";
-				return;
-			}
-			search_elem = search_elem->ptr;
-		}
-		cout << "Element [" << x << "] is not in the list\n";
-	}
-
 };
 
 int main()
@@ -323,17 +248,35 @@ int main()
 
 	List list;
 
-	list.Add_Begin(3);
-	list.Add_Begin(5);
-	list.Add_End(10);
-	list.Add_End(15);
+	list.Add_Begin(10);
+	list.Add_End(11);
+	list.Add_Begin(2);
+	list.Add_End(1);
 
-	list.Add(6, 3);
-	list.Add(11, 1);
-	list.Add(17, 3);
 	list.Print();
-	list.DeleteBegin();
+
+
+	list.Delete_By_Index(1);
 	list.Print();
-	list.Delete(4);
+	list.Delete_By_Index(3);
 	list.Print();
+	list.Print_By_Index(2);
+	list.Delete_By_Index(2);
+	list.Print();
+	list.Delete_By_Index(1);
+	list.Print();
+
+	cout << endl;
+	cout << endl;
+	list.Add_Begin(10);
+	list.Add_Begin(14);
+	list.Add_Begin(15);
+	list.Add_Begin(11);
+	list.Add_End(23);
+	list.Add_End(56);
+	list.Add_End(12);
+	list.Add_End(78);
+
+	list.Print();
+
 }
