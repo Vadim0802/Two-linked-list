@@ -28,6 +28,18 @@ private:
 		count++;
 	}
 
+public:
+	List()
+	{
+		head = nullptr;
+		tail = nullptr;
+		count = 0;
+	}
+	~List()
+	{
+		Clear();
+	}
+
 	void Clear()
 	{
 		Node* Clear = head;
@@ -42,18 +54,6 @@ private:
 		head = nullptr;
 		tail = nullptr;
 	}
-public:
-	List()
-	{
-		head = nullptr;
-		tail = nullptr;
-		count = 0;
-	}
-	~List()
-	{
-		Clear();
-	}
-
 
 	void Add_Begin(int x)
 	{
@@ -135,73 +135,80 @@ public:
 
 	void Delete_By_Index(int index)
 	{
-		if (index <= count / 2)
+		if (head != nullptr)
 		{
-			Node* Parent = head;
-			Node* Next = Parent->ptr;
-			if (index == 1)
+			if (index <= count / 2)
 			{
-				if (Parent->ptr == nullptr)
+				Node* Parent = head;
+				Node* Next = Parent->ptr;
+				if (index == 1)
 				{
+					if (Parent->ptr == nullptr)
+					{
+						delete Parent;
+						head = nullptr;
+						tail = nullptr;
+						count--;
+						return;
+					}
+					head = Parent->ptr;
+					head->prev = nullptr;
 					delete Parent;
-					head = nullptr;
-					tail = nullptr;
 					count--;
 					return;
 				}
-				head = Parent->ptr;
-				head->prev = nullptr;
-				delete Parent;
-				count--;
-				return;
-			}
-			while (Next != nullptr)
-			{
-				if (Next->key == index)
+				while (Next != nullptr)
 				{
+					if (Next->key == index)
+					{
+						Next = Next->ptr;
+						(Next->ptr)->prev = Parent;
+						delete Next;
+						count--;
+						return;
+					}
+					Parent = Next;
 					Next = Next->ptr;
-					(Next->ptr)->prev = Parent;
-					delete Next;
+				}
+			}
+			else if (index > count / 2)
+			{
+				Node* Parent = tail;
+				Node* Next = Parent->prev;
+				if (index == count)
+				{
+					if (Parent->prev == nullptr)
+					{
+						delete Parent;
+						head = nullptr;
+						tail = nullptr;
+						count--;
+						return;
+					}
+					tail = Parent->prev;
+					tail->ptr = nullptr;
+					delete Parent;
 					count--;
 					return;
 				}
-				Parent = Next;
-				Next = Next->ptr;
+				while (Next != nullptr)
+				{
+					if (Next->key == index)
+					{
+						(Next->prev)->ptr = Parent;
+						Parent->prev = Next->prev;
+						delete Next;
+						count--;
+						return;
+					}
+					Parent = Next;
+					Next = Next->prev;
+				}
 			}
 		}
-		else if (index > count / 2)
+		else
 		{
-			Node* Parent = tail;
-			Node* Next = Parent->prev;
-			if (index == count)
-			{
-				if (Parent->prev == nullptr)
-				{
-					delete Parent;
-					head = nullptr;
-					tail = nullptr;
-					count--;
-					return;
-				}
-				tail = Parent->prev;
-				tail->ptr = nullptr;
-				delete Parent;
-				count--;
-				return;
-			}
-			while (Next != nullptr)
-			{
-				if (Next->key == index)
-				{
-					(Next->prev)->ptr = Parent;
-					Parent->prev = Next->prev;
-					delete Next;
-					count--;
-					return;
-				}
-				Parent = Next;
-				Next = Next->prev;
-			}
+			return;
 		}
 	}
 
@@ -242,41 +249,23 @@ public:
 	}
 };
 
+
+
+void test_1() {
+	List ll;
+	ll.Add_End(1);
+	ll.Add_End(2);
+	ll.Delete_By_Index(1);
+	ll.PrintBack();
+}
+
+
+
+
+
+
 int main()
 {
 	setlocale(LC_ALL, "RU");
-
-	List list;
-
-	list.Add_Begin(10);
-	list.Add_End(11);
-	list.Add_Begin(2);
-	list.Add_End(1);
-
-	list.Print();
-
-
-	list.Delete_By_Index(1);
-	list.Print();
-	list.Delete_By_Index(3);
-	list.Print();
-	list.Print_By_Index(2);
-	list.Delete_By_Index(2);
-	list.Print();
-	list.Delete_By_Index(1);
-	list.Print();
-
-	cout << endl;
-	cout << endl;
-	list.Add_Begin(10);
-	list.Add_Begin(14);
-	list.Add_Begin(15);
-	list.Add_Begin(11);
-	list.Add_End(23);
-	list.Add_End(56);
-	list.Add_End(12);
-	list.Add_End(78);
-
-	list.Print();
 
 }
