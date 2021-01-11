@@ -1,27 +1,23 @@
 #include <iostream>
 using namespace std;
 
-struct Node
-{
+struct Node {
 	int key;
 	int field;
 	Node* ptr;
 	Node* prev;
 };
 
-class List
-{
+class List {
 private:
 	Node* head;
 	Node* tail;
 	int count;
 
-	void IndexList()
-	{
+	void IndexList() {
 		Node* Index = head;
 		int i = 1;
-		while (Index->ptr != nullptr)
-		{
+		while (Index->ptr != nullptr) {
 			Index->key = i++;
 			Index = Index->ptr;
 		}
@@ -29,45 +25,40 @@ private:
 	}
 
 public:
-	List()
-	{
+	List() {
 		head = nullptr;
 		tail = nullptr;
 		count = 0;
 	}
-	~List()
-	{
+	~List() {
 		Clear();
 	}
 
-	void Clear()
-	{
+	void Clear() {
 		Node* Clear = head;
 		if (Clear == nullptr) return;
 
-		while (Clear != nullptr)
-		{
+		while (Clear != nullptr) {
 			Node* Next = Clear;
 			Clear = Clear->ptr;
 			delete Next;
 		}
+		
 		head = nullptr;
 		tail = nullptr;
 	}
 
-	void Add_Begin(int x)
-	{
+	void Add_Begin(int x) {
 		Node* elem = new Node;
 		elem->field = x;
-		if (head == nullptr)
-		{
+		
+		if (head == nullptr) {
 			elem->ptr = nullptr;
 			elem->prev = nullptr;
 			head = elem;
 			tail = elem;
 		}
-		else
-		{
+		else {
 			Node* oldHead = head;
 			elem->prev = nullptr;
 			elem->ptr = oldHead;
@@ -77,19 +68,17 @@ public:
 		IndexList();
 	}
 
-	void Add_End(int x)
-	{
+	void Add_End(int x) {
 		Node* elem = new Node;
 		elem->field = x;
-		if (head == nullptr)
-		{
+		
+		if (head == nullptr) {
 			elem->ptr = nullptr;
 			elem->prev = nullptr;
 			head = elem;
 			tail = elem;
 		}
-		else
-		{
+		else {
 			Node* end = tail;
 			tail = elem;
 			end->ptr = elem;
@@ -99,16 +88,13 @@ public:
 		IndexList();
 	}
 
-	void Print_By_Index(int index)
-	{
-		if (index <= count / 2)
-		{
+	void Print_By_Index(int index) {
+		if (index <= count / 2) {
 			Node* begin = head;
+			
 			int counter = 1;
-			while (begin != nullptr)
-			{
-				if (counter == index)
-				{
+			while (begin != nullptr) {
+				if (counter == index) {
 					cout << "[" << counter << "] " << "-->" << " [" << begin->field << "]\n";
 					return;
 				}
@@ -116,14 +102,12 @@ public:
 				counter++;
 			}
 		}
-		else if (index > count / 2)
-		{
+		else if (index > count / 2) {
 			Node* end = tail;
+			
 			int counter = count;
-			while (tail != nullptr)
-			{
-				if (counter == index)
-				{
+			while (tail != nullptr) {
+				if (counter == index) {
 					cout << "[" << counter << "] " << "-->" << " [" << end->field << "]\n";
 					return;
 				}
@@ -133,18 +117,14 @@ public:
 		}
 	}
 
-	void Delete_By_Index(int index)
-	{
-		if (head != nullptr)
-		{
-			if (index <= count / 2)
-			{
+	void Delete_By_Index(int index) {
+		if (head != nullptr) {
+			if (index <= count / 2) {
 				Node* Parent = head;
 				Node* Next = Parent->ptr;
-				if (index == 1)
-				{
-					if (Parent->ptr == nullptr)
-					{
+				
+				if (index == 1) {
+					if (Parent->ptr == nullptr) {
 						delete Parent;
 						head = nullptr;
 						tail = nullptr;
@@ -157,10 +137,8 @@ public:
 					count--;
 					return;
 				}
-				while (Next != nullptr)
-				{
-					if (Next->key == index)
-					{
+				while (Next != nullptr) {
+					if (Next->key == index) {
 						Next = Next->ptr;
 						(Next->ptr)->prev = Parent;
 						delete Next;
@@ -171,14 +149,12 @@ public:
 					Next = Next->ptr;
 				}
 			}
-			else if (index > count / 2)
-			{
+			else if (index > count / 2) {
 				Node* Parent = tail;
 				Node* Next = Parent->prev;
-				if (index == count)
-				{
-					if (Parent->prev == nullptr)
-					{
+				
+				if (index == count) {
+					if (Parent->prev == nullptr) {
 						delete Parent;
 						head = nullptr;
 						tail = nullptr;
@@ -191,10 +167,8 @@ public:
 					count--;
 					return;
 				}
-				while (Next != nullptr)
-				{
-					if (Next->key == index)
-					{
+				while (Next != nullptr) {
+					if (Next->key == index) {
 						(Next->prev)->ptr = Parent;
 						Parent->prev = Next->prev;
 						delete Next;
@@ -206,44 +180,37 @@ public:
 				}
 			}
 		}
-		else
-		{
+		else {
 			return;
 		}
 	}
 
-	void Print()
-	{
+	void Print() {
 		Node* Print = head;
-		if (Print != nullptr)
-		{
-			while (Print != nullptr)
-			{
+		
+		if (Print != nullptr) {
+			while (Print != nullptr) {
 				cout << "[" << Print->field << "]";
 				Print = Print->ptr;
 			}
 			cout << endl;
 		}
-		else
-		{
+		else {
 			cout << "This list is empty!" << endl;
 		}
 	}
 
-	void PrintBack()
-	{
+	void PrintBack() {
 		Node* PrintBack = tail;
-		if (PrintBack != nullptr)
-		{
-			while (PrintBack != nullptr)
-			{
+		
+		if (PrintBack != nullptr) {
+			while (PrintBack != nullptr) {
 				cout << "[" << PrintBack->field << "]";
 				PrintBack = PrintBack->prev;
 			}
 			cout << endl;
 		}
-		else
-		{
+		else {
 			cout << "This list is empty!" << endl;
 		}
 	}
@@ -264,8 +231,6 @@ void test_1() {
 
 
 
-int main()
-{
+int main() {
 	setlocale(LC_ALL, "RU");
-
 }
